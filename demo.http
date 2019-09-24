@@ -1,0 +1,17 @@
+### gossip info
+GET http://localhost:7951/actuator/gossip
+
+### leave from gossip cluster
+POST http://localhost:7951/actuator/gossip/shutdown
+
+### post gossip event
+POST http://localhost:7951/actuator/gossip/event
+Content-Type: application/vnd.spring-boot.actuator.v2+json
+
+{
+  "type": "demo",
+  "data": "good"
+}
+
+
+###
