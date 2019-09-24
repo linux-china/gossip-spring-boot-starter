@@ -3,7 +3,10 @@ package org.mvnsearch.boot.gossip;
 import io.scalecube.cluster.Cluster;
 import io.scalecube.cluster.ClusterImpl;
 import io.scalecube.cluster.ClusterMessageHandler;
+import io.scalecube.cluster.Member;
 import io.scalecube.net.Address;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableConfigurationProperties(GossipProperties.class)
 public class GossipAutoConfiguration {
+    private Logger log = LoggerFactory.getLogger(GossipAutoConfiguration.class);
     @Autowired
     private GossipProperties properties;
 
@@ -50,7 +54,10 @@ public class GossipAutoConfiguration {
         for (GossipClusterCustomizer customizer : customizers.orderedStream().collect(Collectors.toList())) {
             clusterImpl = customizer.customize(clusterImpl);
         }
-        return clusterImpl.startAwait();
+        Cluster cluster = clusterImpl.startAwait();
+        Member member = cluster.member();
+        log.info("Gossip cluster started with id: " + member.id() + ", host: " + member.address().host() + " and port: " + member.address().port());
+        return cluster;
     }
 
     @Bean
