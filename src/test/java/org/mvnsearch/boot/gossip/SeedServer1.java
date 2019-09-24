@@ -36,7 +36,7 @@ public class SeedServer1 {
             public void onMembershipEvent(MembershipEvent event) {
 
             }
-        }
+        };
     }
 
 }
