@@ -1,6 +1,6 @@
 gossip-spring-boot-starter
 ==========================
-Gossip & SWIM starter for Spring Boot App
+Gossip & SWIM starter for Spring Boot App withe ScaleCube Cluster support.
 
 
 # References
