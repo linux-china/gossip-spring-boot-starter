@@ -43,7 +43,12 @@ public class GossipAutoConfiguration {
                 .startAwait();
     }
 
-    public List<Address> seedMembers() {
+    @Bean
+    public GossipEndpoint gossipEndpoint() {
+        return new GossipEndpoint();
+    }
+
+    private List<Address> seedMembers() {
         return properties.getSeeds().stream().map(address -> {
             String[] parts = address.split(":");
             return Address.create(parts[0], Integer.parseInt(parts[1]));
