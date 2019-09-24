@@ -1,13 +1,17 @@
 package org.mvnsearch.boot.gossip;
 
 
+import io.scalecube.cluster.Cluster;
+import io.scalecube.cluster.transport.api.Message;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * gossip endpoint
@@ -16,20 +20,45 @@ import java.util.Map;
  */
 @Endpoint(id = "gossip")
 public class GossipEndpoint {
+    private Cluster cluster;
+
+    public GossipEndpoint(Cluster cluster) {
+        this.cluster = cluster;
+    }
 
     @ReadOperation
     public Map<String, Object> gossipCluster() {
         Map<String, Object> info = new HashMap<>();
+        info.put("status", cluster.isShutdown() ? "shutdown" : "active");
+        info.put("members", cluster.members().stream().map(member -> {
+                    Map<String, Object> temp = new HashMap<>();
+                    temp.put("host", member.address().host());
+                    temp.put("port", member.address().port());
+                    if (member.id() != null && !member.id().isEmpty()) {
+                        temp.put("id", member.id());
+                    }
+                    return temp;
+                }).collect(Collectors.toList())
+        );
         return info;
     }
 
     @WriteOperation
-    public void updateStatus(@Selector String ops) {
-        // ops, such as shutdown
+    public String showdown(@Selector String ops) {
+        if (ops.equals("shutdown")) {
+            cluster.shutdown();
+        }
+        return "shutdown";
     }
 
     @WriteOperation
-    public void gossipEvent(@Selector String name, GossipEvent event) {
-
+    public Mono<String> gossipEvent(@Selector String arg0,
+                                    String type, String data) {
+        Message msg = Message.builder()
+                .data(data)
+                .header("type", type)
+                .sender(cluster.member().address())
+                .build();
+        return cluster.spreadGossip(msg);
     }
 }
