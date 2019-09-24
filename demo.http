@@ -9,8 +9,10 @@ POST http://localhost:7951/actuator/gossip/event
 Content-Type: application/vnd.spring-boot.actuator.v2+json
 
 {
-  "type": "demo",
-  "data": "good"
+  "type": "com.foobar.user.LoginEvent",
+  "source": "source-1",
+  "datacontenttype": "text/plain",
+  "data": "uid:1234"
 }
 
 
