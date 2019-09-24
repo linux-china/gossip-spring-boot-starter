@@ -26,7 +26,12 @@ public class GossipEndpoint {
     }
 
     @WriteOperation
-    public void configureFeature(@Selector String ops) {
+    public void updateStatus(@Selector String ops) {
         // ops, such as shutdown
+    }
+
+    @WriteOperation
+    public void gossipEvent(@Selector String name, GossipEvent event) {
+
     }
 }
