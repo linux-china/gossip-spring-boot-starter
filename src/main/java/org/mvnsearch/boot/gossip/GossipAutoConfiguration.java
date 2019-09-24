@@ -4,6 +4,7 @@ import io.scalecube.cluster.Cluster;
 import io.scalecube.cluster.ClusterImpl;
 import io.scalecube.cluster.ClusterMessageHandler;
 import io.scalecube.net.Address;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,8 @@ public class GossipAutoConfiguration {
     private GossipProperties properties;
 
     @Bean
-    public Cluster gossipCluster(@Autowired ClusterMessageHandler handler) {
+    public Cluster gossipCluster(@Autowired(required = false) ObjectProvider<ClusterMessageHandler> handlers,
+                                 @Autowired(required = false) ObjectProvider<GossipClusterCustomizer> customizers) {
         int listenPort = properties.getListen();
         final String host;
         if (properties.getHost() == null || properties.getHost().isEmpty()) {
@@ -35,12 +37,20 @@ public class GossipAutoConfiguration {
         } else {
             host = properties.getHost();
         }
-        return new ClusterImpl()
+        ClusterImpl clusterImpl = new ClusterImpl()
                 .config(clusterConfig -> clusterConfig.memberHost(host).memberPort(listenPort))
                 .membership(membershipConfig -> membershipConfig.seedMembers(seedMembers()).syncInterval(properties.getSyncInterval()))
-                .transport(transportConfig -> transportConfig.host(host).port(listenPort))
-                .handler(cluster1 -> handler)
-                .startAwait();
+                .transport(transportConfig -> transportConfig.host(host).port(listenPort));
+        if (handlers != null) {
+            ClusterMessageHandlerChain chain = new ClusterMessageHandlerChain(handlers.orderedStream().collect(Collectors.toList()));
+            if (!chain.isEmpty()) {
+                clusterImpl = clusterImpl.handler(cluster1 -> chain);
+            }
+        }
+        for (GossipClusterCustomizer customizer : customizers.orderedStream().collect(Collectors.toList())) {
+            clusterImpl = customizer.customize(clusterImpl);
+        }
+        return clusterImpl.startAwait();
     }
 
     @Bean
