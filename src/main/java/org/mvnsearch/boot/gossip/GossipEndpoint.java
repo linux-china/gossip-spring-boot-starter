@@ -9,8 +9,11 @@ import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
 import reactor.core.publisher.Mono;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -53,10 +56,14 @@ public class GossipEndpoint {
 
     @WriteOperation
     public Mono<String> gossipEvent(@Selector String arg0,
-                                    String type, String data) {
+                                    String type, String source, String datacontenttype, String data) {
         Message msg = Message.builder()
                 .data(data)
+                .header("id", UUID.randomUUID().toString())
                 .header("type", type)
+                .header("source", source)
+                .header("datacontenttype", source)
+                .header("time", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
                 .sender(cluster.member().address())
                 .build();
         return cluster.spreadGossip(msg);
