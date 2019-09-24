@@ -44,8 +44,8 @@ public class GossipAutoConfiguration {
     }
 
     @Bean
-    public GossipEndpoint gossipEndpoint() {
-        return new GossipEndpoint();
+    public GossipEndpoint gossipEndpoint(Cluster cluster) {
+        return new GossipEndpoint(cluster);
     }
 
     private List<Address> seedMembers() {
