@@ -13,8 +13,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <spring-boot.version>2.1.9.RELEASE</spring-boot.version>
-        <scalecube-cluster.version>2.4.9</scalecube-cluster.version>
+        <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+        <scalecube-cluster.version>2.4.10-RC1</scalecube-cluster.version>
         <junit5.version>5.5.2</junit5.version>
     </properties>
 
