@@ -42,7 +42,7 @@ public class GossipAutoConfiguration {
             host = properties.getHost();
         }
         ClusterImpl clusterImpl = new ClusterImpl()
-                .config(clusterConfig -> clusterConfig.memberHost(host).memberPort(listenPort))
+                .config(clusterConfig -> clusterConfig.containerHost(host).containerPort(listenPort))
                 .membership(membershipConfig -> membershipConfig.seedMembers(seedMembers()).syncInterval(properties.getSyncInterval()))
                 .transport(transportConfig -> transportConfig.host(host).port(listenPort));
         if (handlers != null) {
