@@ -31,7 +31,7 @@ public class GossipAutoConfiguration {
     @Autowired
     private GossipProperties properties;
 
-    @Bean
+    @Bean(destroyMethod = "shutdown")
     public Cluster gossipCluster(@Autowired(required = false) ObjectProvider<ClusterMessageHandler> handlers,
                                  @Autowired(required = false) ObjectProvider<GossipClusterCustomizer> customizers) {
         int listenPort = properties.getListen();
