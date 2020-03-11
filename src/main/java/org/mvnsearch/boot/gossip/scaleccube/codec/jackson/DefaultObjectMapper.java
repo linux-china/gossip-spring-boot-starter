@@ -8,10 +8,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import java.time.ZonedDateTime;
 
 /**
  * default Jackson object mapper with CloudEvents support
@@ -34,11 +30,7 @@ final class DefaultObjectMapper {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
         mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.WRAPPER_OBJECT);
-        mapper.registerModule(new Jdk8Module());
-        final SimpleModule module = new SimpleModule();
-        module.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer());
-        module.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer());
-        mapper.registerModule(module);
+        mapper.findAndRegisterModules();
         return mapper;
     }
 }
